@@ -1,0 +1,977 @@
+<style>
+  :root{
+    --bg:#1C2418;
+    --surface:#242D1E;
+    --surface-2:#2E3826;
+    --surface-3:#37432B;
+    --border:#3A4530;
+    --text:#F2EFE4;
+    --text-muted:#B7BCA6;
+    --accent-gold:#D4AF2C;
+    --accent-gold-dim:#8A711D;
+    --accent-sage:#7FAE8D;
+    --accent-rust:#C25F3A;
+    --accent-sky:#5C8AA6;
+    --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  }
+  *{box-sizing:border-box;}
+  .agro-root{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    border-radius:10px;
+    min-height:680px;
+    display:flex;
+    flex-direction:column;
+    font-size:17px;
+  }
+  .furrow-divider{
+    height:10px;
+    background-image:repeating-linear-gradient(90deg, var(--accent-gold-dim) 0 18px, transparent 18px 26px);
+    opacity:.35;
+    flex-shrink:0;
+  }
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 24px;
+    flex-shrink:0;
+  }
+  .brand{
+    font-family:var(--font-display);
+    font-size:22px;
+    font-weight:700;
+    color:var(--accent-gold);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .home-icon{ font-size:20px; }
+  .top-actions{ display:flex; gap:10px; }
+  .body-area{
+    flex:1;
+    padding:10px 26px 30px 26px;
+    overflow-y:auto;
+  }
+  .btn-big{
+    width:100%;
+    background:var(--accent-gold);
+    color:#1C2418;
+    border:none;
+    padding:20px 22px;
+    border-radius:12px;
+    font-size:19px;
+    font-weight:700;
+    cursor:pointer;
+    letter-spacing:.2px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    transition:background .15s, transform .1s;
+  }
+  .btn-big:hover{ background:#E4C13F; }
+  .btn-big:active{ transform:scale(.98); }
+  .btn-big.secondary{
+    background:var(--surface-2);
+    color:var(--text);
+    border:2px solid var(--border);
+  }
+  .btn-big.secondary:hover{ border-color:var(--accent-gold); color:var(--accent-gold); }
+  .btn-big.rust{ background:var(--accent-rust); color:#fff; }
+  .btn-big.rust:hover{ background:#D26F49; }
+  .btn-small{
+    background:none;
+    border:2px solid var(--border);
+    color:var(--text-muted);
+    padding:10px 16px;
+    border-radius:8px;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .btn-small:hover{ border-color:var(--accent-gold); color:var(--accent-gold); }
+
+  .home-title{
+    font-family:var(--font-display);
+    font-size:32px;
+    font-weight:700;
+    text-align:center;
+    margin:20px 0 8px 0;
+  }
+  .home-sub{
+    text-align:center;
+    color:var(--text-muted);
+    font-size:17px;
+    margin-bottom:26px;
+  }
+  textarea{
+    width:100%;
+    min-height:130px;
+    background:var(--surface);
+    border:2px solid var(--border);
+    color:var(--text);
+    padding:18px;
+    border-radius:12px;
+    font-size:19px;
+    font-family:var(--font-body);
+    resize:vertical;
+    line-height:1.5;
+  }
+  textarea:focus{ outline:none; border-color:var(--accent-gold); }
+  .ejemplos{
+    margin-top:14px;
+    color:var(--text-muted);
+    font-size:14.5px;
+    line-height:1.7;
+  }
+  .ejemplos b{ color:var(--text); }
+  .ejemplo-chip{
+    display:inline-block;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    padding:6px 12px;
+    border-radius:20px;
+    margin:4px 6px 4px 0;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .ejemplo-chip:hover{ border-color:var(--accent-gold); color:var(--accent-gold); }
+  .home-actions{ margin-top:20px; display:flex; flex-direction:column; gap:12px; }
+
+  .loading-box{
+    text-align:center;
+    padding:70px 20px;
+    color:var(--text-muted);
+    font-size:19px;
+  }
+  .spinner{
+    width:44px; height:44px;
+    border:4px solid var(--border);
+    border-top-color:var(--accent-gold);
+    border-radius:50%;
+    margin:0 auto 20px auto;
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .confirm-title{
+    font-family:var(--font-display);
+    font-size:24px;
+    font-weight:700;
+    margin:10px 0 18px 0;
+  }
+  .record-card{
+    background:var(--surface);
+    border:2px solid var(--border);
+    border-radius:12px;
+    padding:18px 20px;
+    margin-bottom:14px;
+  }
+  .record-card.discarded{ opacity:.4; }
+  .record-cat{
+    display:inline-block;
+    font-size:12.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+    padding:4px 10px;
+    border-radius:20px;
+    margin-bottom:10px;
+  }
+  .record-cat.ganado{ background:rgba(127,174,141,.2); color:var(--accent-sage); }
+  .record-cat.cultivo{ background:rgba(212,175,44,.2); color:var(--accent-gold); }
+  .record-cat.finanza{ background:rgba(194,95,58,.2); color:var(--accent-rust); }
+  .record-resumen{ font-size:18px; margin-bottom:10px; }
+  .record-field{ font-size:14.5px; color:var(--text-muted); margin-top:4px; }
+  .record-field b{ color:var(--text); font-family:var(--font-mono); }
+  .record-actions{ margin-top:14px; display:flex; gap:10px; }
+
+  .error-box{
+    background:rgba(194,95,58,.12);
+    border:2px solid var(--accent-rust);
+    color:var(--text);
+    padding:18px 20px;
+    border-radius:12px;
+    font-size:16px;
+    margin-bottom:16px;
+  }
+
+  .tabs-grande{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:10px;
+    margin-bottom:20px;
+  }
+  @media (max-width:820px){ .tabs-grande{ grid-template-columns:repeat(3,1fr); } }
+  .tab-grande{
+    background:var(--surface);
+    border:2px solid var(--border);
+    border-radius:12px;
+    padding:16px 8px;
+    text-align:center;
+    cursor:pointer;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--text-muted);
+  }
+  .tab-grande.active{ border-color:var(--accent-gold); color:var(--accent-gold); background:var(--surface-2); }
+  .tab-grande:hover{ color:var(--text); }
+
+  .kpi-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+  @media (max-width:700px){ .kpi-row{ grid-template-columns:1fr; } }
+  .kpi-card{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px; }
+  .kpi-label{ font-size:13px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; }
+  .kpi-value{ font-family:var(--font-mono); font-size:26px; font-weight:700; margin-top:6px; }
+  .kpi-value.sage{ color:var(--accent-sage); }
+  .kpi-value.gold{ color:var(--accent-gold); }
+  .kpi-value.rust{ color:var(--accent-rust); }
+
+  table{ width:100%; border-collapse:collapse; font-size:15px; }
+  th{ text-align:left; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); padding:10px 12px; border-bottom:2px solid var(--border); }
+  td{ padding:12px; border-bottom:1px solid var(--border); font-size:15px; }
+  tr:last-child td{ border-bottom:none; }
+  .tag{ display:inline-block; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+  .tag.ok{ background:rgba(127,174,141,.18); color:var(--accent-sage); }
+  .tag.warn{ background:rgba(212,175,44,.18); color:var(--accent-gold); }
+  .tag.bad{ background:rgba(194,95,58,.18); color:var(--accent-rust); }
+  .tag.info{ background:rgba(92,138,166,.2); color:var(--accent-sky); }
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px; }
+  .empty-state{ padding:40px 20px; text-align:center; color:var(--text-muted); font-size:16px; }
+  .chart-wrap{ height:240px; margin-top:6px; }
+  .del-btn{ background:none; border:none; color:var(--accent-rust); cursor:pointer; font-size:13px; }
+  .del-btn:hover{ text-decoration:underline; }
+
+  /* CICLOS */
+  .form-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-top:12px; }
+  label{ font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); display:block; margin-bottom:5px; }
+  input, select{
+    width:100%;
+    background:var(--surface-2);
+    border:2px solid var(--border);
+    color:var(--text);
+    padding:11px 10px;
+    border-radius:8px;
+    font-size:15px;
+    font-family:var(--font-body);
+  }
+  input:focus, select:focus{ outline:none; border-color:var(--accent-gold); }
+  .ciclo-card{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px; margin-bottom:14px; }
+  .ciclo-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; }
+  .ciclo-nombre{ font-size:17px; font-weight:700; }
+  .ciclo-sub{ font-size:13px; color:var(--text-muted); margin-top:2px; }
+  .progress-outer{ background:var(--surface-2); border-radius:20px; height:14px; margin-top:12px; overflow:hidden; border:1px solid var(--border); }
+  .progress-inner{ height:100%; background:var(--accent-gold); border-radius:20px; transition:width .3s; }
+  .progress-inner.done{ background:var(--accent-sage); }
+  .progress-inner.late{ background:var(--accent-rust); }
+  .ciclo-meta{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-muted); margin-top:6px; }
+  .ciclo-actions{ margin-top:12px; display:flex; gap:10px; }
+
+  .toast{
+    position:fixed; bottom:16px; right:16px;
+    background:var(--surface-3); border:1px solid var(--accent-gold);
+    color:var(--text); padding:12px 18px; border-radius:8px; font-size:14px;
+    z-index:999; opacity:0; transition:opacity .3s; pointer-events:none;
+  }
+  .toast.show{ opacity:1; }
+</style>
+
+<div class="agro-root" id="agroRoot">
+  <div class="topbar">
+    <div class="brand" id="brandHome"><span class="home-icon">&#8962;</span> El Cuaderno</div>
+    <div class="top-actions" id="topActions"></div>
+  </div>
+  <div class="furrow-divider"></div>
+  <div class="body-area" id="bodyArea"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+(function(){
+
+let state = {
+  screen:'home',        // home | loading | confirm | ver
+  ganado:[], cultivos:[], finanzas:[], ciclos:[],
+  loaded:false,
+  pendingText:'',
+  pendingRecords:[],
+  errorMsg:null,
+  verTab:'ganado'
+};
+
+// ---------- UTILIDADES ----------
+function escapeHtml(str){
+  return String(str===null || str===undefined ? '' : str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+const fmtMoney = n => '$' + (Number(n)||0).toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtNum = n => (Number(n)||0).toLocaleString('es-MX');
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const today = () => new Date().toISOString().slice(0,10);
+function addDays(dateStr, days){
+  const d = new Date(dateStr);
+  if(isNaN(d)) return '';
+  d.setDate(d.getDate() + Number(days||0));
+  return d.toISOString().slice(0,10);
+}
+function daysBetween(a,b){
+  const da = new Date(a), db = new Date(b);
+  if(isNaN(da) || isNaN(db)) return 0;
+  return Math.round((db-da) / 86400000);
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+function confirmarAccion(msg){
+  return window.confirm(msg);
+}
+
+// ---------- ALMACENAMIENTO (cada bloque de datos se carga por separado para que un error no borre los demas) ----------
+async function loadKey(key){
+  try{
+    const res = await window.storage.get(key);
+    return res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){
+    console.warn('No se encontro o no se pudo leer', key, e);
+    return [];
+  }
+}
+
+let loadFailed = { ganado:false, cultivos:false, finanzas:false, ciclos:false };
+
+async function loadAll(){
+  state.ganado = await loadKey('ganado-list');
+  state.cultivos = await loadKey('cultivos-list');
+  state.finanzas = await loadKey('finanzas-list');
+  state.ciclos = await loadKey('ciclos-list');
+  state.loaded = true;
+  render();
+}
+
+async function persist(key, data){
+  try{
+    const res = await window.storage.set(key, JSON.stringify(data));
+    if(!res) showToast('No se pudo guardar. Revisa tu conexion e intenta de nuevo.');
+    return !!res;
+  }catch(e){
+    console.error(e);
+    showToast('No se pudo guardar. Revisa tu conexion e intenta de nuevo.');
+    return false;
+  }
+}
+function saveGanado(){ return persist('ganado-list', state.ganado); }
+function saveCultivos(){ return persist('cultivos-list', state.cultivos); }
+function saveFinanzas(){ return persist('finanzas-list', state.finanzas); }
+function saveCiclos(){ return persist('ciclos-list', state.ciclos); }
+
+// ---------- INTERPRETAR TEXTO CON IA ----------
+function extraerJson(texto){
+  let clean = texto.replace(/```json/gi,'').replace(/```/g,'').trim();
+  try{
+    return JSON.parse(clean);
+  }catch(e){
+    const match = clean.match(/\{[\s\S]*\}/);
+    if(match){
+      try{ return JSON.parse(match[0]); }catch(e2){ /* sigue abajo */ }
+    }
+    throw new Error('No se pudo interpretar la respuesta.');
+  }
+}
+
+async function interpretarTexto(texto){
+  const systemPrompt = `Eres un asistente que ayuda a personas del campo (agricultores y ganaderos) a llevar el registro de su rancho o parcela. La fecha de hoy es ${today()}.
+
+El usuario te va a escribir, en lenguaje cotidiano y posiblemente informal o con errores, una o varias cosas que quiere registrar. Puede mencionar varias cosas en un solo texto.
+
+Clasifica cada cosa en una de estas 3 categorias:
+
+1. "ganado": animales (vacas, cerdos, aves, ovejas, caballos, etc), su cantidad, salud o estado.
+   datos: { "tipo": string, "cantidad": number, "estado": "Saludable"|"En observacion"|"Enfermo", "notas": string o "" }
+
+2. "cultivo": siembra, cosecha, parcelas, hectareas, o cultivos.
+   datos: { "nombre": string, "area": number o null, "siembra": "YYYY-MM-DD" o "", "cosecha": "YYYY-MM-DD" o "", "estado": "Sembrado"|"En crecimiento"|"Cosechado"|"Perdido" }
+
+3. "finanza": dinero, ventas, compras, gastos o ingresos.
+   datos: { "tipo": "ingreso"|"gasto", "categoria": string corta, "monto": number, "fecha": "YYYY-MM-DD", "descripcion": string o "" }
+
+Si no hay fecha, usa la fecha de hoy. Si no hay cantidad o monto exacto, da tu mejor estimacion o 0 si es imposible.
+
+Responde SOLAMENTE con JSON valido, sin texto extra ni markdown, con esta forma exacta:
+{"records":[{"categoria":"ganado|cultivo|finanza","resumen":"frase corta y amigable en espa\u00f1ol confirmando que se va a guardar","datos":{...}}]}
+
+Si no hay nada que registrar en estas categorias, responde: {"records":[]}`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      model:"claude-sonnet-4-6",
+      max_tokens:1000,
+      system: systemPrompt,
+      messages:[ { role:"user", content: texto } ]
+    })
+  });
+  if(!response.ok){
+    let detalle = '';
+    try{ detalle = (await response.text()).slice(0,200); }catch(e){}
+    throw new Error('El servicio respondio con un error (codigo ' + response.status + ')' + (detalle ? ': ' + detalle : ''));
+  }
+  const data = await response.json();
+  const textBlock = (data.content||[]).map(b=>b.text||'').join('');
+  const parsed = extraerJson(textBlock);
+  return Array.isArray(parsed.records) ? parsed.records : [];
+}
+
+async function onRegistrarClick(){
+  const ta = document.getElementById('homeTextarea');
+  const val = ta ? ta.value.trim() : '';
+  if(!val){ showToast('Escribe algo primero.'); return; }
+  state.pendingText = val;
+  state.screen = 'loading';
+  state.errorMsg = null;
+  render();
+  try{
+    const records = await interpretarTexto(val);
+    if(records.length===0){
+      state.errorMsg = 'No logre entender que quieres registrar. Intenta explicarlo con otras palabras, por ejemplo: "vendi 5 pollos por 800 pesos".';
+      state.screen = 'home';
+      render();
+      return;
+    }
+    state.pendingRecords = records.map(r=>({...r, discarded:false}));
+    state.screen = 'confirm';
+    render();
+  }catch(e){
+    console.error(e);
+    state.errorMsg = 'Hubo un problema al entender tu registro. No se guardo nada todavia. Puedes intentar de nuevo, o usar el registro manual abajo. (Detalle tecnico: ' + (e && e.message ? e.message : 'desconocido') + ')';
+    state.screen = 'home';
+    render();
+  }
+}
+
+function toggleDiscard(idx){
+  state.pendingRecords[idx].discarded = !state.pendingRecords[idx].discarded;
+  render();
+}
+
+async function confirmarGuardado(){
+  let count = 0;
+  const nuevosGanado = [], nuevosCultivos = [], nuevasFinanzas = [];
+  state.pendingRecords.forEach(r=>{
+    if(r.discarded) return;
+    count++;
+    if(r.categoria==='ganado'){
+      nuevosGanado.push({ id:uid(), tipo:r.datos.tipo||'Sin especificar', cantidad:Number(r.datos.cantidad||0), estado:r.datos.estado||'Saludable', notas:r.datos.notas||'', fecha:today() });
+    } else if(r.categoria==='cultivo'){
+      nuevosCultivos.push({ id:uid(), nombre:r.datos.nombre||'Sin especificar', area:Number(r.datos.area||0), siembra:r.datos.siembra||'', cosecha:r.datos.cosecha||'', estado:r.datos.estado||'Sembrado' });
+    } else if(r.categoria==='finanza'){
+      nuevasFinanzas.push({ id:uid(), tipo:r.datos.tipo==='ingreso'?'ingreso':'gasto', categoria:r.datos.categoria||'General', monto:Number(r.datos.monto||0), fecha:r.datos.fecha||today(), descripcion:r.datos.descripcion||'' });
+    }
+  });
+  if(count===0){ showToast('No seleccionaste nada para guardar.'); return; }
+
+  // Solo modificamos el estado en memoria despues de construir las listas nuevas, y solo agregamos (nunca reemplazamos) los datos existentes.
+  state.ganado = state.ganado.concat(nuevosGanado);
+  state.cultivos = state.cultivos.concat(nuevosCultivos);
+  state.finanzas = state.finanzas.concat(nuevasFinanzas);
+
+  const results = await Promise.all([
+    nuevosGanado.length ? saveGanado() : true,
+    nuevosCultivos.length ? saveCultivos() : true,
+    nuevasFinanzas.length ? saveFinanzas() : true
+  ]);
+
+  if(results.every(Boolean)){
+    showToast(count + (count===1?' registro guardado':' registros guardados'));
+  }
+  state.pendingRecords = [];
+  state.pendingText = '';
+  state.screen = 'home';
+  render();
+}
+
+function irHome(){
+  state.screen='home'; state.errorMsg=null; state.pendingRecords=[]; state.pendingText='';
+  render();
+}
+function irVer(tab){
+  state.screen='ver';
+  if(tab) state.verTab=tab;
+  render();
+}
+
+// ---------- TOPBAR ----------
+function renderTopActions(){
+  const el = document.getElementById('topActions');
+  if(state.screen==='home'){
+    el.innerHTML = `<button class="btn-small" id="btnVer">Ver mis registros</button>`;
+    document.getElementById('btnVer').onclick = ()=>irVer();
+  } else if(state.screen==='ver'){
+    el.innerHTML = `<button class="btn-small" id="btnNuevo">+ Registrar algo</button>`;
+    document.getElementById('btnNuevo').onclick = irHome;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+// ---------- HOME ----------
+function renderHome(){
+  document.getElementById('bodyArea').innerHTML = `
+    <div class="home-title">\u00bfQu\u00e9 vas a registrar hoy?</div>
+    <div class="home-sub">Escribe con tus propias palabras, como si se lo contaras a alguien.</div>
+    ${state.errorMsg ? `<div class="error-box">${escapeHtml(state.errorMsg)}</div>` : ''}
+    <textarea id="homeTextarea" placeholder="Por ejemplo: hoy vendi 5 vacas por 15000 pesos...">${escapeHtml(state.pendingText||'')}</textarea>
+    <div class="ejemplos">
+      <b>Ideas:</b><br/>
+      <span class="ejemplo-chip">Compre 20 gallinas nuevas</span>
+      <span class="ejemplo-chip">Vendi 3 vacas por 18000 pesos</span>
+      <span class="ejemplo-chip">Sembre 2 hectareas de maiz hoy</span>
+      <span class="ejemplo-chip">Gaste 500 pesos en medicina para el ganado</span>
+      <span class="ejemplo-chip">Cosecha el frijol, salio bien</span>
+    </div>
+    <div class="home-actions">
+      <button class="btn-big" id="btnRegistrar">&#10003; Registrar</button>
+      <button class="btn-big secondary" id="btnManual">Registrar sin usar el texto automatico</button>
+      <button class="btn-big secondary" id="btnCiclos">&#128337; Configurar un ciclo (abono, siembra, engorda)</button>
+    </div>
+  `;
+  document.getElementById('btnRegistrar').onclick = onRegistrarClick;
+  document.getElementById('btnManual').onclick = ()=>{ state.screen='manual'; state.manualCat='ganado'; render(); };
+  document.getElementById('btnCiclos').onclick = ()=>irVer('ciclos');
+  document.querySelectorAll('.ejemplo-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.getElementById('homeTextarea').value = chip.textContent;
+      document.getElementById('homeTextarea').focus();
+    });
+  });
+}
+
+// ---------- REGISTRO MANUAL (sin IA, por si falla la conexion) ----------
+function renderManual(){
+  const cat = state.manualCat || 'ganado';
+  let camposHtml = '';
+  if(cat==='ganado'){
+    camposHtml = `
+      <div class="form-grid">
+        <div><label>Tipo</label><input id="mTipo" placeholder="Vacas, Cerdos, Aves..." /></div>
+        <div><label>Cantidad</label><input id="mCantidad" type="number" min="0" /></div>
+        <div><label>Estado</label>
+          <select id="mEstado"><option>Saludable</option><option>En observacion</option><option>Enfermo</option></select>
+        </div>
+        <div><label>Notas</label><input id="mNotas" placeholder="Opcional" /></div>
+      </div>`;
+  } else if(cat==='cultivo'){
+    camposHtml = `
+      <div class="form-grid">
+        <div><label>Nombre</label><input id="mNombre" placeholder="Maiz, Frijol..." /></div>
+        <div><label>Area (ha)</label><input id="mArea" type="number" min="0" step="0.1" /></div>
+        <div><label>Estado</label>
+          <select id="mEstadoC"><option>Sembrado</option><option>En crecimiento</option><option>Cosechado</option><option>Perdido</option></select>
+        </div>
+      </div>`;
+  } else {
+    camposHtml = `
+      <div class="form-grid">
+        <div><label>Tipo</label><select id="mTipoF"><option value="ingreso">Ingreso</option><option value="gasto">Gasto</option></select></div>
+        <div><label>Categoria</label><input id="mCategoria" placeholder="Venta, Insumos..." /></div>
+        <div><label>Monto</label><input id="mMonto" type="number" min="0" step="0.01" /></div>
+        <div><label>Fecha</label><input id="mFecha" type="date" value="${today()}" /></div>
+        <div><label>Descripcion</label><input id="mDescripcion" placeholder="Opcional" /></div>
+      </div>`;
+  }
+
+  document.getElementById('bodyArea').innerHTML = `
+    <div class="confirm-title">Registro manual</div>
+    <div class="tabs-grande" style="grid-template-columns:repeat(3,1fr);">
+      <div class="tab-grande ${cat==='ganado'?'active':''}" data-mc="ganado">Ganado</div>
+      <div class="tab-grande ${cat==='cultivo'?'active':''}" data-mc="cultivo">Cultivo</div>
+      <div class="tab-grande ${cat==='finanza'?'active':''}" data-mc="finanza">Dinero</div>
+    </div>
+    <div class="card">${camposHtml}</div>
+    <div class="home-actions">
+      <button class="btn-big" id="btnGuardarManual">&#10003; Guardar</button>
+      <button class="btn-big secondary" id="btnCancelarManual">Cancelar</button>
+    </div>
+  `;
+
+  document.querySelectorAll('[data-mc]').forEach(t=>{
+    t.addEventListener('click', ()=>{ state.manualCat = t.getAttribute('data-mc'); render(); });
+  });
+  document.getElementById('btnCancelarManual').onclick = irHome;
+  document.getElementById('btnGuardarManual').onclick = async ()=>{
+    if(cat==='ganado'){
+      const tipo = document.getElementById('mTipo').value.trim();
+      const cantidad = document.getElementById('mCantidad').value;
+      if(!tipo || !cantidad){ showToast('Completa tipo y cantidad.'); return; }
+      state.ganado = state.ganado.concat([{ id:uid(), tipo, cantidad:Number(cantidad), estado:document.getElementById('mEstado').value, notas:document.getElementById('mNotas').value.trim(), fecha:today() }]);
+      await saveGanado();
+    } else if(cat==='cultivo'){
+      const nombre = document.getElementById('mNombre').value.trim();
+      const area = document.getElementById('mArea').value;
+      if(!nombre || !area){ showToast('Completa nombre y area.'); return; }
+      state.cultivos = state.cultivos.concat([{ id:uid(), nombre, area:Number(area), siembra:today(), cosecha:'', estado:document.getElementById('mEstadoC').value }]);
+      await saveCultivos();
+    } else {
+      const categoria = document.getElementById('mCategoria').value.trim();
+      const monto = document.getElementById('mMonto').value;
+      if(!categoria || !monto){ showToast('Completa categoria y monto.'); return; }
+      state.finanzas = state.finanzas.concat([{ id:uid(), tipo:document.getElementById('mTipoF').value, categoria, monto:Number(monto), fecha:document.getElementById('mFecha').value||today(), descripcion:document.getElementById('mDescripcion').value.trim() }]);
+      await saveFinanzas();
+    }
+    showToast('Registro guardado');
+    irHome();
+  };
+}
+
+// ---------- LOADING ----------
+function renderLoading(){
+  document.getElementById('bodyArea').innerHTML = `
+    <div class="loading-box">
+      <div class="spinner"></div>
+      Estoy entendiendo tu registro, un momento...
+    </div>
+  `;
+}
+
+// ---------- CONFIRM ----------
+const catLabel = { ganado:'Ganado', cultivo:'Cultivo', finanza:'Dinero' };
+
+function fieldsHtml(r){
+  if(r.categoria==='ganado'){
+    return `
+      <div class="record-field">Tipo: <b>${escapeHtml(r.datos.tipo||'-')}</b></div>
+      <div class="record-field">Cantidad: <b>${fmtNum(r.datos.cantidad)}</b></div>
+      <div class="record-field">Estado: <b>${escapeHtml(r.datos.estado||'-')}</b></div>
+    `;
+  }
+  if(r.categoria==='cultivo'){
+    return `
+      <div class="record-field">Cultivo: <b>${escapeHtml(r.datos.nombre||'-')}</b></div>
+      ${r.datos.area?`<div class="record-field">Area: <b>${fmtNum(r.datos.area)} ha</b></div>`:''}
+      <div class="record-field">Estado: <b>${escapeHtml(r.datos.estado||'-')}</b></div>
+    `;
+  }
+  if(r.categoria==='finanza'){
+    return `
+      <div class="record-field">Tipo: <b>${r.datos.tipo==='ingreso'?'Ingreso':'Gasto'}</b></div>
+      <div class="record-field">Categoria: <b>${escapeHtml(r.datos.categoria||'-')}</b></div>
+      <div class="record-field">Monto: <b>${fmtMoney(r.datos.monto)}</b></div>
+      <div class="record-field">Fecha: <b>${escapeHtml(r.datos.fecha||'-')}</b></div>
+    `;
+  }
+  return '';
+}
+
+function renderConfirm(){
+  document.getElementById('bodyArea').innerHTML = `
+    <div class="confirm-title">Esto entendi, \u00bflo guardo?</div>
+    ${state.pendingRecords.map((r,idx)=>`
+      <div class="record-card ${r.discarded?'discarded':''}">
+        <span class="record-cat ${r.categoria}">${catLabel[r.categoria]||escapeHtml(r.categoria)}</span>
+        <div class="record-resumen">${escapeHtml(r.resumen||'')}</div>
+        ${fieldsHtml(r)}
+        <div class="record-actions">
+          <button class="btn-small" data-toggle="${idx}">${r.discarded ? 'Deshacer, si guardar' : 'No guardar esto'}</button>
+        </div>
+      </div>
+    `).join('')}
+    <div class="home-actions">
+      <button class="btn-big" id="btnConfirmar">&#10003; Si, guardar todo</button>
+      <button class="btn-big secondary" id="btnCorregir">Corregir texto</button>
+    </div>
+  `;
+  document.getElementById('btnConfirmar').onclick = confirmarGuardado;
+  document.getElementById('btnCorregir').onclick = ()=>{ state.screen='home'; render(); };
+  document.querySelectorAll('[data-toggle]').forEach(btn=>{
+    btn.addEventListener('click', ()=> toggleDiscard(Number(btn.getAttribute('data-toggle'))) );
+  });
+}
+
+// ---------- VER MIS REGISTROS ----------
+function computeFinanceTotals(){
+  let ingresos=0, gastos=0;
+  state.finanzas.forEach(f=>{ if(f.tipo==='ingreso') ingresos+=Number(f.monto); else gastos+=Number(f.monto); });
+  return {ingresos, gastos, balance: ingresos-gastos};
+}
+
+function renderVer(){
+  const tabs = [
+    {id:'ganado', label:'Mi Ganado'},
+    {id:'cultivos', label:'Mis Cultivos'},
+    {id:'finanzas', label:'Mi Dinero'},
+    {id:'ciclos', label:'Ciclos'},
+    {id:'graficas', label:'Graficas'}
+  ];
+  let html = `<div class="tabs-grande">
+    ${tabs.map(t=>`<div class="tab-grande ${state.verTab===t.id?'active':''}" data-vt="${t.id}">${t.label}</div>`).join('')}
+  </div>`;
+
+  if(state.verTab==='ganado'){
+    html += state.ganado.length===0 ? '<div class="empty-state">Todavia no has registrado ganado.</div>' : `
+      <div class="card" style="padding:0;">
+        <table>
+          <thead><tr><th>Tipo</th><th>Cantidad</th><th>Estado</th><th>Fecha</th><th></th></tr></thead>
+          <tbody>
+            ${state.ganado.map(g=>`
+              <tr>
+                <td>${escapeHtml(g.tipo)}</td><td>${fmtNum(g.cantidad)}</td>
+                <td><span class="tag ${g.estado==='Saludable'?'ok':g.estado==='En observacion'?'warn':'bad'}">${escapeHtml(g.estado)}</span></td>
+                <td>${escapeHtml(g.fecha)}</td>
+                <td><button class="del-btn" data-del="ganado" data-id="${g.id}">eliminar</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } else if(state.verTab==='cultivos'){
+    html += state.cultivos.length===0 ? '<div class="empty-state">Todavia no has registrado cultivos.</div>' : `
+      <div class="card" style="padding:0;">
+        <table>
+          <thead><tr><th>Cultivo</th><th>Area (ha)</th><th>Estado</th><th></th></tr></thead>
+          <tbody>
+            ${state.cultivos.map(c=>`
+              <tr>
+                <td>${escapeHtml(c.nombre)}</td><td>${fmtNum(c.area)}</td>
+                <td><span class="tag ${c.estado==='Cosechado'?'ok':c.estado==='Perdido'?'bad':'warn'}">${escapeHtml(c.estado)}</span></td>
+                <td><button class="del-btn" data-del="cultivos" data-id="${c.id}">eliminar</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } else if(state.verTab==='finanzas'){
+    const t = computeFinanceTotals();
+    html += `
+      <div class="kpi-row">
+        <div class="kpi-card"><div class="kpi-label">Ingresos</div><div class="kpi-value sage">${fmtMoney(t.ingresos)}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Gastos</div><div class="kpi-value rust">${fmtMoney(t.gastos)}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Balance</div><div class="kpi-value ${t.balance>=0?'sage':'rust'}">${fmtMoney(t.balance)}</div></div>
+      </div>
+    `;
+    html += state.finanzas.length===0 ? '<div class="empty-state">Todavia no has registrado dinero.</div>' : `
+      <div class="card" style="padding:0;">
+        <table>
+          <thead><tr><th>Fecha</th><th>Tipo</th><th>Categoria</th><th>Monto</th><th></th></tr></thead>
+          <tbody>
+            ${[...state.finanzas].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).map(f=>`
+              <tr>
+                <td>${escapeHtml(f.fecha)}</td>
+                <td><span class="tag ${f.tipo==='ingreso'?'ok':'bad'}">${f.tipo}</span></td>
+                <td>${escapeHtml(f.categoria)}</td>
+                <td style="color:${f.tipo==='ingreso'?'var(--accent-sage)':'var(--accent-rust)'}">${f.tipo==='ingreso'?'+':'-'}${fmtMoney(f.monto)}</td>
+                <td><button class="del-btn" data-del="finanzas" data-id="${f.id}">eliminar</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } else if(state.verTab==='ciclos'){
+    html += renderCiclosHtml();
+  } else if(state.verTab==='graficas'){
+    html += `
+      <div class="card" style="margin-bottom:16px;">
+        <div style="font-weight:700; margin-bottom:8px;">Ingresos y gastos por mes</div>
+        <div class="chart-wrap"><canvas id="chartCashflow"></canvas></div>
+      </div>
+      <div class="card">
+        <div style="font-weight:700; margin-bottom:8px;">Ganado por tipo</div>
+        <div class="chart-wrap"><canvas id="chartGanado"></canvas></div>
+      </div>
+    `;
+  }
+
+  document.getElementById('bodyArea').innerHTML = html;
+
+  document.querySelectorAll('[data-vt]').forEach(tab=>{
+    tab.addEventListener('click', ()=>{ state.verTab = tab.getAttribute('data-vt'); render(); });
+  });
+  document.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const kind = btn.getAttribute('data-del');
+      const id = btn.getAttribute('data-id');
+      if(!confirmarAccion('\u00bfSeguro que quieres eliminar este registro? No se puede deshacer.')) return;
+      if(kind==='ganado'){ state.ganado = state.ganado.filter(x=>x.id!==id); saveGanado(); }
+      if(kind==='cultivos'){ state.cultivos = state.cultivos.filter(x=>x.id!==id); saveCultivos(); }
+      if(kind==='finanzas'){ state.finanzas = state.finanzas.filter(x=>x.id!==id); saveFinanzas(); }
+      render();
+    });
+  });
+
+  if(state.verTab==='ciclos') wireCiclosEvents();
+  if(state.verTab==='graficas' && typeof Chart!=='undefined') renderGraficas();
+}
+
+// ---------- CICLOS (configuracion manual: abono, siembra, engorda) ----------
+const TIPOS_CICLO = ['Abono','Siembra','Engorda','Otro'];
+
+function estadoCiclo(c){
+  if(c.estadoManual==='Completado') return {label:'Completado', cls:'ok'};
+  if(c.estadoManual==='Cancelado') return {label:'Cancelado', cls:'bad'};
+  const dias = daysBetween(c.inicio, today());
+  const total = Number(c.duracionDias||0);
+  if(total>0 && dias>total) return {label:'Atrasado', cls:'bad'};
+  if(total>0 && dias>=total) return {label:'Listo', cls:'ok'};
+  return {label:'En curso', cls:'info'};
+}
+
+function renderCiclosHtml(){
+  let html = `
+    <div class="card">
+      <strong style="font-size:15px;">Configurar nuevo ciclo</strong>
+      <div class="form-grid">
+        <div><label>Tipo de ciclo</label>
+          <select id="cicTipo">${TIPOS_CICLO.map(t=>`<option>${t}</option>`).join('')}</select>
+        </div>
+        <div><label>Nombre / a que aplica</label><input id="cicNombre" placeholder="Ej: Lote de cerdos A, Parcela 2 de maiz" /></div>
+        <div><label>Fecha de inicio</label><input id="cicInicio" type="date" value="${today()}" /></div>
+        <div><label>Duracion (dias)</label><input id="cicDuracion" type="number" min="1" placeholder="Ej: 90" /></div>
+        <div><label>Notas</label><input id="cicNotas" placeholder="Opcional" /></div>
+      </div>
+      <div style="margin-top:14px;"><button class="btn-big" id="btnAddCiclo" style="width:auto; padding:14px 22px; font-size:16px;">+ Guardar ciclo</button></div>
+    </div>
+
+    <div style="font-family:var(--font-display); font-size:18px; font-weight:700; margin:20px 0 12px 0;">Ciclos configurados</div>
+  `;
+
+  if(state.ciclos.length===0){
+    html += '<div class="empty-state">Todavia no has configurado ningun ciclo.</div>';
+    return html;
+  }
+
+  const orden = [...state.ciclos].sort((a,b)=>new Date(a.inicio)-new Date(b.inicio));
+  orden.forEach(c=>{
+    const total = Number(c.duracionDias||0);
+    const dias = Math.max(0, daysBetween(c.inicio, today()));
+    const pct = total>0 ? Math.min(100, Math.round((dias/total)*100)) : 0;
+    const fin = c.inicio && total ? addDays(c.inicio, total) : '';
+    const est = estadoCiclo(c);
+    const barClass = est.cls==='ok' ? 'done' : (est.cls==='bad' ? 'late' : '');
+    html += `
+      <div class="ciclo-card">
+        <div class="ciclo-top">
+          <div>
+            <div class="ciclo-nombre">${escapeHtml(c.nombre)}</div>
+            <div class="ciclo-sub">${escapeHtml(c.tipo)} &middot; inicio ${escapeHtml(c.inicio)}${fin?(' &middot; fin estimado '+escapeHtml(fin)):''}</div>
+          </div>
+          <span class="tag ${est.cls}">${est.label}</span>
+        </div>
+        ${total>0 ? `
+        <div class="progress-outer"><div class="progress-inner ${barClass}" style="width:${pct}%;"></div></div>
+        <div class="ciclo-meta"><span>Dia ${fmtNum(dias)} de ${fmtNum(total)}</span><span>${pct}%</span></div>
+        ` : ''}
+        ${c.notas ? `<div class="record-field" style="margin-top:10px;">${escapeHtml(c.notas)}</div>` : ''}
+        <div class="ciclo-actions">
+          ${est.label!=='Completado' ? `<button class="btn-small" data-completar="${c.id}">Marcar completado</button>` : ''}
+          <button class="btn-small" data-elimciclo="${c.id}">Eliminar</button>
+        </div>
+      </div>
+    `;
+  });
+
+  return html;
+}
+
+function wireCiclosEvents(){
+  const btnAdd = document.getElementById('btnAddCiclo');
+  if(btnAdd){
+    btnAdd.addEventListener('click', ()=>{
+      const tipo = document.getElementById('cicTipo').value;
+      const nombre = document.getElementById('cicNombre').value.trim();
+      const inicio = document.getElementById('cicInicio').value || today();
+      const duracionDias = document.getElementById('cicDuracion').value;
+      const notas = document.getElementById('cicNotas').value.trim();
+      if(!nombre){ showToast('Escribe a que aplica el ciclo.'); return; }
+      if(!duracionDias || Number(duracionDias)<=0){ showToast('Escribe cuantos dias dura el ciclo.'); return; }
+      state.ciclos.push({ id:uid(), tipo, nombre, inicio, duracionDias:Number(duracionDias), notas, estadoManual:'' });
+      saveCiclos();
+      showToast('Ciclo configurado');
+      render();
+    });
+  }
+  document.querySelectorAll('[data-completar]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-completar');
+      const c = state.ciclos.find(x=>x.id===id);
+      if(c){ c.estadoManual = 'Completado'; saveCiclos(); render(); }
+    });
+  });
+  document.querySelectorAll('[data-elimciclo]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-elimciclo');
+      if(!confirmarAccion('\u00bfSeguro que quieres eliminar este ciclo? No se puede deshacer.')) return;
+      state.ciclos = state.ciclos.filter(x=>x.id!==id);
+      saveCiclos();
+      render();
+    });
+  });
+}
+
+// ---------- GRAFICAS ----------
+function monthKey(dateStr){ const d=new Date(dateStr); if(isNaN(d)) return null; return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function last6Months(){
+  const arr=[]; const now=new Date();
+  for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(), now.getMonth()-i, 1); arr.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')); }
+  return arr;
+}
+function renderGraficas(){
+  const months = last6Months();
+  const ingresosPorMes = months.map(m=>state.finanzas.filter(f=>f.tipo==='ingreso' && monthKey(f.fecha)===m).reduce((s,f)=>s+Number(f.monto),0));
+  const gastosPorMes = months.map(m=>state.finanzas.filter(f=>f.tipo==='gasto' && monthKey(f.fecha)===m).reduce((s,f)=>s+Number(f.monto),0));
+  const cfCanvas = document.getElementById('chartCashflow');
+  if(cfCanvas){
+    new Chart(cfCanvas, {
+      type:'bar',
+      data:{ labels:months, datasets:[ {label:'Ingresos', data:ingresosPorMes, backgroundColor:'#7FAE8D'}, {label:'Gastos', data:gastosPorMes, backgroundColor:'#C25F3A'} ] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ labels:{ color:'#B7BCA6', font:{size:13} } } },
+        scales:{ x:{ ticks:{ color:'#B7BCA6', font:{size:12} }, grid:{ color:'#3A4530' } }, y:{ ticks:{ color:'#B7BCA6', font:{size:12} }, grid:{ color:'#3A4530' } } }
+      }
+    });
+  }
+  const ganadoTipos = {};
+  state.ganado.forEach(g=>{ ganadoTipos[g.tipo] = (ganadoTipos[g.tipo]||0)+Number(g.cantidad); });
+  const gCanvas = document.getElementById('chartGanado');
+  if(gCanvas){
+    if(Object.keys(ganadoTipos).length===0){
+      gCanvas.parentElement.innerHTML = '<div class="empty-state">Aun no hay ganado registrado.</div>';
+    } else {
+      new Chart(gCanvas, {
+        type:'bar',
+        data:{ labels:Object.keys(ganadoTipos), datasets:[{ label:'Cantidad', data:Object.values(ganadoTipos), backgroundColor:'#D4AF2C' }] },
+        options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+          plugins:{ legend:{ display:false } },
+          scales:{ x:{ ticks:{ color:'#B7BCA6', font:{size:12} }, grid:{ color:'#3A4530' } }, y:{ ticks:{ color:'#B7BCA6', font:{size:13} }, grid:{ display:false } } }
+        }
+      });
+    }
+  }
+}
+
+// ---------- RENDER ROOT ----------
+function render(){
+  renderTopActions();
+  if(!state.loaded){
+    document.getElementById('bodyArea').innerHTML = '<div class="loading-box"><div class="spinner"></div>Cargando tus datos guardados...</div>';
+    return;
+  }
+  if(state.screen==='home') renderHome();
+  else if(state.screen==='manual') renderManual();
+  else if(state.screen==='loading') renderLoading();
+  else if(state.screen==='confirm') renderConfirm();
+  else if(state.screen==='ver') renderVer();
+}
+
+document.getElementById('brandHome').addEventListener('click', irHome);
+
+render();
+loadAll();
+
+})();
+</script>
